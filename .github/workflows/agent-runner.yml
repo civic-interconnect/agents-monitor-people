@@ -1,4 +1,4 @@
-name: People Monitor Agent
+name: Monitor People Agent
 
 on:
   schedule:
