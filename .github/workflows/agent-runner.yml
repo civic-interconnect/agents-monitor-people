@@ -24,7 +24,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install --upgrade pip setuptools wheel --prefer-binary
-          pip install --upgrade -r requirements.txt --timeout 100
+          pip install --upgrade -r requirements.txt --timeout 100 --no-cache-dir
 
       - name: Run agent
         env:
