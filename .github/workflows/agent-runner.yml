@@ -1,4 +1,4 @@
-name: Civic Interconnect People Monitor Agent
+name: People Monitor Agent
 
 on:
   schedule:
