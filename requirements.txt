@@ -1,0 +1,26 @@
+# ======================================================
+# ESSENTIAL EXTERNAL TOOLS
+# ======================================================
+
+# Base tooling (always upgrade these first)
+pip
+setuptools
+wheel
+
+# Environment variables management
+python-dotenv
+
+# YAML parsing 
+PyYAML
+
+# Civic Interconnect library
+git+https://github.com/civic-interconnect/civic-interconnect-lib.git
+
+# Git integration (used to clone repos)
+GitPython
+
+# GraphQL client with asyncio transport (used for OpenStates schema pulls)
+gql[aiohttp]
+
+# Data processing and analysis
+pandas
