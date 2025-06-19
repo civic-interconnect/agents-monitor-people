@@ -2,19 +2,19 @@
 parsers/openstates_people_parser.py
 
 Queries OpenStates GraphQL for basic people counts.
+
+MIT License — Civic Interconnect
 """
 
 import asyncio
 import pandas as pd
 from gql import gql, Client
 from gql.transport.aiohttp import AIOHTTPTransport
-from gql.transport.exceptions import (
-    TransportServerError,
-    TransportQueryError,
-    TransportProtocolError,
-)
-from loguru import logger
+from civic_lib import log_utils, error_utils
 
+logger = log_utils.logger
+
+# GraphQL query for people data
 PEOPLE_QUERY = gql("""
 query PeopleSummary($first: Int, $after: String) {
   people(first: $first, after: $after) {
@@ -34,7 +34,7 @@ query PeopleSummary($first: Int, $after: String) {
 """)
 
 
-async def fetch_people(api_key, config):
+async def fetch_people(api_key: str, config: dict) -> pd.DataFrame:
     url = config["openstates_graphql_url"]
     headers = {"Authorization": f"Bearer {api_key}"}
 
@@ -66,7 +66,10 @@ async def fetch_people(api_key, config):
     return pd.DataFrame(people)
 
 
-def run(storage_path, config, api_key):
+def run(storage_path: str, config: dict, api_key: str) -> list | str:
+    """
+    Entry point to pull and summarize OpenStates people data.
+    """
     logger.info("Pulling OpenStates people summary...")
 
     try:
@@ -76,24 +79,8 @@ def run(storage_path, config, api_key):
         logger.info(f"Summary: {summary}")
         return summary
 
-    except TransportServerError as e:
-        if "403" in str(e):
-            logger.warning(
-                "OpenStates people access not yet enabled (received 403 Forbidden)."
-            )
-            return "People data access not yet granted"
-        else:
-            logger.error(f"Server error: {e}")
-            raise
-
-    except TransportQueryError as e:
-        logger.error(f"GraphQL query error: {e}")
-        raise
-
-    except TransportProtocolError as e:
-        logger.error(f"Transport protocol error: {e}")
-        raise
-
     except Exception as e:
-        logger.error(f"Unexpected error: {e}")
-        raise
+        logger.error(f"People monitor failed: {str(e)}")
+        return error_utils.handle_transport_errors(
+            e, resource_name="OpenStates People Monitor"
+        )

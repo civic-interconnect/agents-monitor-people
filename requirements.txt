@@ -2,7 +2,7 @@
 # ESSENTIAL EXTERNAL TOOLS
 # ======================================================
 
-# Base tooling (always upgrade these first)
+# Up-to-date package management tools
 pip
 setuptools
 wheel
@@ -10,7 +10,7 @@ wheel
 # Environment variables management
 python-dotenv
 
-# YAML parsing 
+# YAML parsing
 PyYAML
 
 # Civic Interconnect library
