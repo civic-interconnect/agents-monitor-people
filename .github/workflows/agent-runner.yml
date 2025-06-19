@@ -1,4 +1,4 @@
-name: Civic Interconnect People Monitor Agent
+name: Monitor People Agent
 
 on:
   schedule:
@@ -7,6 +7,9 @@ on:
   push:
     branches:
       - main
+
+permissions:
+  contents: write
 
 jobs:
   run-agent:
@@ -19,12 +22,15 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.12.x'  
+          python-version: '3.12.x'
+
+      - name: Uninstall old civic-lib if exists
+        run: pip uninstall -y civic-lib civic_interconnect_lib || true
 
       - name: Install dependencies
         run: |
           pip install --upgrade pip setuptools wheel --prefer-binary
-          pip install --upgrade -r requirements.txt --timeout 100
+          pip install --upgrade -r requirements.txt --timeout 100 --no-cache-dir
 
       - name: Run agent
         env:

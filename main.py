@@ -2,46 +2,64 @@
 main.py - Civic Interconnect People Monitor Agent
 
 Pulls legislators and governor data from OpenStates and summarizes counts.
+
+MIT License — Civic Interconnect
 """
 
-import os
-import yaml
-from datetime import datetime, timezone
+import sys
+from pathlib import Path
 from dotenv import load_dotenv
-from civic_lib import logging_utils, api_utils
+from civic_lib import log_utils, config_utils
+from civic_lib.date_utils import today_utc_str
+from civic_lib.path_utils import ensure_dir
+from civic_lib.yaml_utils import write_yaml
 from parsers import openstates_people_parser
 
+log_utils.init_logger()
+logger = log_utils.logger
 
-logging_utils.init_logger()
-logging_utils.logger.info("===== Starting Monitor People Agent =====")
 
-# Load environment variables
-load_dotenv()
+def main():
+    """
+    Main function for the People Monitor Agent.
+    Expected config.yaml keys:
+    - report_path
+    - openstates_graphql_url
+    """
+    logger.info("===== Starting Monitor People Agent =====")
+    load_dotenv()
 
-# Load API keys and configuration
-openstates_api_key = api_utils.load_openstates_api_key()
-config = api_utils.load_yaml_config("config.yaml")
-version = api_utils.load_version("VERSION")
+    ROOT_DIR = Path(__file__).resolve().parent
+    config = config_utils.load_yaml_config("config.yaml", root_dir=ROOT_DIR)
+    version = config_utils.load_version("VERSION", root_dir=ROOT_DIR)
+    api_key = config_utils.load_openstates_api_key()
+    today = today_utc_str()
+    logger.info(f"Polling date: {today}")
 
-# Generate today's date string
-today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-logging_utils.logger.info(f"Polling date: {today}")
+    report_path = ensure_dir(Path(config["report_path"]) / today)
+    logger.info(f"Report path: {report_path}")
 
-# Create storage paths
-daily_report_path = os.path.join("reports", today)
-os.makedirs(daily_report_path, exist_ok=True)
-logging_utils.logger.info(f"Report path: {daily_report_path}")
+    try:
+        summary = openstates_people_parser.run(".", config, api_key)
+    except Exception as e:
+        logger.error(f"OpenStates people pull failed: {str(e)}")
+        summary = f"People pull failed: {str(e)}"
 
-# Query OpenStates
-try:
-    summary = openstates_people_parser.run(".", config, openstates_api_key)
-except Exception as e:
-    logging_utils.logger.error(f"Failed OpenStates query: {str(e)}")
-    summary = f"People pull failed: {str(e)}"
+    report = {
+        "date": today,
+        "version": version,
+        "People Summary": summary,
+    }
 
-# Write daily report
-report = {"date": today, "People Summary": summary}
-report_file = os.path.join(daily_report_path, f"{today}-people-report.yaml")
-with open(report_file, "w") as f:
-    yaml.dump(report, f, sort_keys=False)
-logging_utils.logger.info(f"Report created: {report_file}")
+    report_file = report_path / f"{today}-people-report.yaml"
+    write_yaml(report, report_file)
+    logger.info(f"Report created: {report_file}")
+
+
+if __name__ == "__main__":
+    try:
+        main()
+        sys.exit(0)
+    except Exception as e:
+        logger.exception(f"Agent failed unexpectedly. {e}")
+        sys.exit(1)
