@@ -10,7 +10,7 @@ import asyncio
 import pandas as pd
 from gql import gql, Client
 from gql.transport.aiohttp import AIOHTTPTransport
-from civic_lib import log_utils, error_utils
+from civic_lib_core import log_utils, error_utils
 
 logger = log_utils.logger
 
@@ -80,7 +80,6 @@ def run(storage_path: str, config: dict, api_key: str) -> list | str:
         return summary
 
     except Exception as e:
-        logger.error(f"People monitor failed: {str(e)}")
         return error_utils.handle_transport_errors(
             e, resource_name="OpenStates People Monitor"
         )
