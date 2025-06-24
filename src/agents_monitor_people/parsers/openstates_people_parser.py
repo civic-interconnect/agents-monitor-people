@@ -7,10 +7,11 @@ MIT License — Civic Interconnect
 """
 
 import asyncio
+
 import pandas as pd
-from gql import gql, Client
+from civic_lib_core import error_utils, log_utils
+from gql import Client, gql
 from gql.transport.aiohttp import AIOHTTPTransport
-from civic_lib_core import log_utils, error_utils
 
 logger = log_utils.logger
 
@@ -50,13 +51,11 @@ async def fetch_people(api_key: str, config: dict) -> pd.DataFrame:
         edges = response["people"]["edges"]
         for edge in edges:
             person = edge["node"]
-            people.append(
-                {
-                    "id": person["id"],
-                    "name": person["name"],
-                    "jurisdiction": person["jurisdiction"]["name"],
-                }
-            )
+            people.append({
+                "id": person["id"],
+                "name": person["name"],
+                "jurisdiction": person["jurisdiction"]["name"],
+            })
         page = response["people"]["pageInfo"]
         if not page["hasNextPage"]:
             break
@@ -80,6 +79,4 @@ def run(storage_path: str, config: dict, api_key: str) -> list | str:
         return summary
 
     except Exception as e:
-        return error_utils.handle_transport_errors(
-            e, resource_name="OpenStates People Monitor"
-        )
+        return error_utils.handle_transport_errors(e, resource_name="OpenStates People Monitor")

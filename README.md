@@ -1,13 +1,13 @@
 # agents-monitor-people
 
-[![Version](https://img.shields.io/badge/version-v0.2.1-blue)](https://github.com/civic-interconnect/agents-monitor-people/releases)
+[![Version](https://img.shields.io/badge/version-v0.2.2-blue)](https://github.com/civic-interconnect/agents-monitor-people/releases)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](https://opensource.org/licenses/MIT)
 [![Build Status](https://github.com/civic-interconnect/agents-monitor-people/actions/workflows/agent-runner.yml/badge.svg)](https://github.com/civic-interconnect/agents-monitor-people/actions)
 
-> People Monitor Agent for Civic Interconnect
+> People and Roles Agent for Civic Interconnect
 
-This agent queries basic people metadata from OpenStates using their GraphQL API.
-It creates daily snapshot reports of people counts by jurisdiction to help track overall system volume and schema stability.
+This agent queries basic people and roles metadata from OpenStates using their GraphQL API.
+It creates daily snapshot reports of counts by jurisdiction to help track overall system volume and schema stability.
 
 ## Current Status
 
@@ -22,8 +22,8 @@ This agent is scheduled to run automatically using GitHub Actions.
 
 ## Local Development
 
-See [REF_DEV.md](./REF_DEV.md). Then:
+See [DEVELOPER.md](./DEVELOPER.md). Then:
 
 ```shell
-py main.py
+people-agent start
 ```
