@@ -9,7 +9,7 @@ MIT License — Civic Interconnect
 import asyncio
 
 import pandas as pd
-from civic_lib_core import error_utils, log_utils
+from civic_lib_core import graphql_utils, log_utils
 from gql import Client, gql
 from gql.transport.aiohttp import AIOHTTPTransport
 
@@ -79,4 +79,4 @@ def run(storage_path: str, config: dict, api_key: str) -> list | str:
         return summary
 
     except Exception as e:
-        return error_utils.handle_transport_errors(e, resource_name="OpenStates People Monitor")
+        return graphql_utils.handle_transport_errors(e, resource_name="OpenStates People Monitor")
